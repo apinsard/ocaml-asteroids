@@ -11,8 +11,37 @@ let height = 600;;
 (* --- definition types pour etat du jeu --- *)
 
 (* A DEFINIR : positions, deplacements, etc. *)
-  
-type etat = unit;; (* A REDEFINIR *)
+
+type position = {x: int; y: int};; (* Abscisse et ordonnée sur la fenêtre *)
+type orientation = Degree of int;; (* Angle par rapport à la normale *)
+type vitesse = Pps of int;; (* en pixels par seconde *)
+type taille = Taille of int;; (* entre 1 et 4 (Arbitraire) *)
+type couleur = Rouge | Bleu | Vert | Jaune;;
+
+type missile = {
+  pos: position;
+  orient: orientation
+}
+
+type vaisseau = {
+  pos: position;
+  orient: orientation;
+  vitesse: vitesse
+};;
+
+type asteroid = {
+  pos: position;
+  orient: orientation;
+  vitesse: vitesse;
+  taille: taille;
+  couleur: couleur
+};;
+
+type etat = {
+  vaisseau: vaisseau;
+  asteroids: asteroid list;
+  missiles: missile list
+};; (* A REDEFINIR *)
 
 (* --- initialisations etat --- *)
 
