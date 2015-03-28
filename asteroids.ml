@@ -10,8 +10,6 @@ let height = 600;;
 
 (* --- definition types pour etat du jeu --- *)
 
-(* A DEFINIR : positions, deplacements, etc. *)
-
 type position = {x: int; y: int};; (* Abscisse et ordonnée sur la fenêtre *)
 type orientation = Degree of int;; (* Angle par rapport à la normale *)
 type vitesse = Pps of int;; (* en pixels par seconde *)
@@ -41,7 +39,7 @@ type etat = {
   vaisseau: vaisseau;
   asteroids: asteroid list;
   missiles: missile list
-};; (* A REDEFINIR *)
+};;
 
 (* --- initialisations etat --- *)
 
@@ -55,8 +53,8 @@ let init_etat () = ();; (* A REDEFINIR *)
 let acceleration etat = etat;; (* A REDEFINIR *)
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
-let rotation_gauche etat = etat;; (* A REDEFINIR *)
-let rotation_droite etat = etat;; (* A REDEFINIR *)
+let rotation_gauche etat = {etat with vaisseau.orient = etat.vaisseau.orient - 5} ;;
+let rotation_droite etat = {etat with vaisseau.orient = etat.vaisseau.orient + 5} ;;
 
 (* tir d'un nouveau projectile *)
 let tir etat = etat;; (* A REDEFINIR *)
