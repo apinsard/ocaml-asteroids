@@ -53,8 +53,8 @@ let init_etat () = ();; (* A REDEFINIR *)
 let acceleration etat = etat;; (* A REDEFINIR *)
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
-let rotation_gauche etat = {etat with vaisseau.orient = etat.vaisseau.orient - 5} ;;
-let rotation_droite etat = {etat with vaisseau.orient = etat.vaisseau.orient + 5} ;;
+let rotation_gauche etat = {etat with vaisseau = {etat.vaisseau with orient = (etat.vaisseau.orient - (Degree 5))}};;
+let rotation_droite etat = {etat with vaisseau = {etat.vaisseau with orient = (etat.vaisseau.orient + (Degree 5))}};;
 
 (* tir d'un nouveau projectile *)
 let tir etat = etat;; (* A REDEFINIR *)

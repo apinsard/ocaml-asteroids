@@ -1,3 +1,5 @@
 asteroids
 asteroids.cm[io]
 *.sw[po]
+*.log
+*.aux
