@@ -11,9 +11,9 @@ let height = 600;;
 (* --- definition types pour etat du jeu --- *)
 
 type position = {x: int; y: int};; (* Abscisse et ordonnée sur la fenêtre *)
-type orientation = Degree of int;; (* Angle par rapport à la normale *)
-type vitesse = Pps of int;; (* en pixels par seconde *)
-type taille = Taille of int;; (* entre 1 et 4 (Arbitraire) *)
+type orientation = int;; (* Angle par rapport à la normale *)
+type vitesse = int;; (* en pixels par seconde *)
+type taille = int;; (* entre 1 et 4 (Arbitraire) *)
 type couleur = Rouge | Bleu | Vert | Jaune;;
 
 type missile = {
@@ -53,8 +53,8 @@ let init_etat () = ();; (* A REDEFINIR *)
 let acceleration etat = etat;; (* A REDEFINIR *)
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
-let rotation_gauche etat = {etat with vaisseau = {etat.vaisseau with orient = (etat.vaisseau.orient - (Degree 5))}};;
-let rotation_droite etat = {etat with vaisseau = {etat.vaisseau with orient = (etat.vaisseau.orient + (Degree 5))}};;
+let rotation_gauche etat = {etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 5}};;
+let rotation_droite etat = {etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 5}};;
 
 (* tir d'un nouveau projectile *)
 let tir etat = etat;; (* A REDEFINIR *)
