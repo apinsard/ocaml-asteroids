@@ -1,4 +1,3 @@
-
 open Graphics;;
 
 (* constantes et parametres *)
@@ -17,10 +16,12 @@ type vitesse = float;; (* coefficient multiplicateur *)
 type taille = int;; (* entre 1 et 4 (Arbitraire) *)
 type couleur = Rouge | Bleu | Vert | Jaune;;
 
+
 type missile = {
-  pos: coordonees;
+    pos: coordonees;
   orient: orientation
 };;
+
 
 type vaisseau = {
   pos : coordonees;
@@ -28,19 +29,22 @@ type vaisseau = {
   vitesse: vitesse
 };;
 
+
 type asteroid = {
-  pos: coordonees;
-  orient: orientation;
-  vitesse: vitesse;
-  taille: taille;
-  couleur: couleur
+    pos: coordonees;
+    orient: orientation;
+    vitesse: vitesse;
+    taille: taille;
+    couleur: couleur
 };;
 
+
 type etat = {
-  vaisseau: vaisseau;
-  asteroids: asteroid list;
-  missiles: missile list
+    vaisseau: vaisseau;
+    asteroids: asteroid list;
+    missiles: missile list
 };;
+
 
 (* --- initialisations etat --- *)
 
@@ -109,35 +113,35 @@ let affiche_etat etat = ();;
 (* --- boucle d'interaction --- *)
 
 let rec boucle_interaction ref_etat =
-  let status = wait_next_event [Key_pressed] in (* on attend une frappe clavier *)
-  let etat = !ref_etat in (* on recupere l'etat courant *)
-  let nouvel_etat = (* on definit le nouvel etat... *)
-    match status.key with (* ...en fonction de la touche frappee *)
-    | '1' | 'j' -> rotation_gauche etat (* rotation vers la gauche *)
-    | '2' | 'k' -> acceleration etat (* acceleration vers l'avant *)
-    | '3' | 'l' -> rotation_droite etat (* rotation vers la droite *)
-    | ' ' -> tir etat (* tir d'un projectile *)
-    | 'q' -> print_endline "Bye bye!"; exit 0 (* on quitte le jeux *)
-    | _ -> etat in (* sinon, rien ne se passe *)
-  ref_etat := nouvel_etat; (* on enregistre le nouvel etat *)
-  boucle_interaction ref_etat;; (* on se remet en attente de frappe clavier *)
+    let status = wait_next_event [Key_pressed] in (* on attend une frappe clavier *)
+    let etat = !ref_etat in (* on recupere l'etat courant *)
+    let nouvel_etat = (* on definit le nouvel etat... *)
+        match status.key with (* ...en fonction de la touche frappee *)
+        | '1' | 'j' -> rotation_gauche etat (* rotation vers la gauche *)
+        | '2' | 'k' -> acceleration etat (* acceleration vers l'avant *)
+        | '3' | 'l' -> rotation_droite etat (* rotation vers la droite *)
+        | ' ' -> tir etat (* tir d'un projectile *)
+        | 'q' -> print_endline "Bye bye!"; exit 0 (* on quitte le jeux *)
+        | _ -> etat in (* sinon, rien ne se passe *)
+            ref_etat := nouvel_etat; (* on enregistre le nouvel etat *)
+            boucle_interaction ref_etat;; (* on se remet en attente de frappe clavier *)
 
 (* --- fonction principale --- *)
-    
+
 let main () =
-  (* initialisation du generateur aleatoire *)
-  Random.self_init ();
-  (* initialisation de la fenetre graphique et de l'affichage *)
-  open_graph (" " ^ string_of_int width ^ "x" ^ string_of_int height);
-  auto_synchronize false;
-  (* initialisation de l'etat du jeu *)
-  (*let ref_etat = ref (init_etat ()) in *)
-  let ref_etat = ref init_etat in
-  (* programmation du refraichissement periodique de l'etat du jeu et de son affichage *)
-  let _ = Unix.setitimer Unix.ITIMER_REAL
-    { Unix.it_interval = 0.05; (* tous les 1/20eme de seconde... *)
-      Unix.it_value = 0.05 } in
-  Sys.set_signal Sys.sigalrm
+    (* initialisation du generateur aleatoire *)
+    Random.self_init ();
+    (* initialisation de la fenetre graphique et de l'affichage *)
+    open_graph (" " ^ string_of_int width ^ "x" ^ string_of_int height);
+    auto_synchronize false;
+    (* initialisation de l'etat du jeu *)
+    (*let ref_etat = ref (init_etat ()) in *)
+    let ref_etat = ref init_etat in
+    (* programmation du refraichissement periodique de l'etat du jeu et de son affichage *)
+    let _ = Unix.setitimer Unix.ITIMER_REAL
+        { Unix.it_interval = 0.05; (* tous les 1/20eme de seconde... *)
+          Unix.it_value = 0.05 } in
+    Sys.set_signal Sys.sigalrm
     (Sys.Signal_handle (fun _ ->
       affiche_etat !ref_etat; (* ...afficher l'etat courant... *)
 			(* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
