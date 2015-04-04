@@ -18,7 +18,8 @@ type taille = int;; (* entre 5 et 20 (Arbitraire) *)
 
 type missile = {
 	pos: coordonees;
-	orient: orientation
+	orient: orientation;
+	test: color
 };;
 
 
@@ -105,7 +106,7 @@ let tir etat =
 	let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
 
 	(* on lance le missile ! *)
-	let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient} in
+	let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient; test = red} in
 	{ etat with missiles = new_missile::etat.missiles};;
 	
 
@@ -130,7 +131,7 @@ let rec etat_suivant_missiles etat =
 									 	let new_x = ( (fst miss.pos ) + (int_of_float(tmp_x)) ) in
 									  let new_y = ( (snd miss.pos ) + (int_of_float(tmp_y)) ) in
 										if new_x > width || new_x < 0 || new_y > height || new_y < 0 then
-											etat_suivant_missiles { etat with missiles = rest}
+											etat_suivant_missiles { etat with missiles = rest} 
 										else
 											let new_miss = {miss with pos = (new_x, new_y)} in
 									 		{etat with missiles = new_miss::(etat_suivant_missiles { etat with missiles = rest}).missiles};
@@ -164,25 +165,25 @@ let draw_ship pos orient =
 	let cy = (int_of_float cy_tmp) + snd pos in
 	fill_poly [|(ax,ay);(bx,by);(cx,cy)|];;
 
-let rec draw_asteroids asteroids = 
-	match asteroids with 
+let rec draw_asteroids etat = 
+	match etat.asteroids with 
 		| ast::rest -> set_color ast.couleur;
 								fill_circle (fst ast.pos) (snd ast.pos) ast.taille;
-								draw_asteroids rest;
+								draw_asteroids {etat with asteroids = rest};
 		| _ -> ();;
 
-let rec draw_missiles missiles =
-	match missiles with
-		| miss::rest -> set_color red;
+let rec draw_missiles etat =
+	match etat.missiles with
+		| miss::rest -> set_color miss.test;
 										fill_circle (fst miss.pos) (snd miss.pos) 3;
-										draw_missiles rest;
+										draw_missiles {etat with missiles = rest};
 		| _ -> ();;
 
 
 let affiche_etat etat = 
 	draw_ship etat.vaisseau.pos etat.vaisseau.orient;
-	draw_missiles etat.missiles;
-	draw_asteroids etat.asteroids;;
+	draw_missiles etat;
+	draw_asteroids etat;;
 	
 
 
