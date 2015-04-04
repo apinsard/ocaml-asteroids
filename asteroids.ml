@@ -12,9 +12,8 @@ let pi = 4.0 *. atan 1.0;;
 
 type coordonees = (int * int);; (* Abscisse et ordonnée sur la fenêtre *)
 type orientation = int;; (* Angle par rapport à la normale en degrés *)
-type vitesse = float;; (* coefficient multiplicateur *)
-type taille = int;; (* entre 1 et 4 (Arbitraire) *)
-type couleur = Rouge | Bleu | Vert | Jaune;;
+type vitesse = int;; (* coefficient multiplicateur *)
+type taille = int;; (* entre 5 et 20 (Arbitraire) *)
 
 
 type missile = {
@@ -35,7 +34,7 @@ type asteroid = {
     orient: orientation;
     vitesse: vitesse;
     taille: taille;
-    couleur: couleur
+		couleur: color
 };;
 
 
@@ -56,7 +55,24 @@ let init_etat = {vaisseau = {
 	(* position initiale du vaisseau : le milieu de l'écran : *)
 	pos = ((width / 2),(height / 2)); 
 	orient = 0; vitesse = 0.0 };
-	asteroids = [];
+	asteroids = [
+		{asteroid = {
+				pos = (100, 100);
+				orient = 50;
+				taille = 15;
+				couleur = green;
+				vitesse = zero;
+			}
+		};
+		{asteroid = {
+				pos = (450, 700);
+				orient = 120;
+				taille = 24;
+				couleur = blue;
+				vitesse = zero;
+			}
+		}
+	];
 	missiles = []};;
 
 (* --- changements d'etat --- *)
@@ -65,7 +81,7 @@ let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = e
 let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 5 }};;
 
 (* acceleration du vaisseau *)
-let acceleration etat = { etat with vaisseau = {etat.vaisseau with vitesse = 5 }};;
+let acceleration etat = etat;;
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
 
@@ -83,7 +99,7 @@ let etat_suivant etat = etat;; (* A REDEFINIR *)
 
 (* fonctions d'affichage du vaisseau, d'un asteroide, etc. *)
 
-let draw_ship pos orient vitesse = 
+let draw_ship pos orient = 
 	set_color blue;
 	let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
 	let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
@@ -99,12 +115,17 @@ let draw_ship pos orient vitesse =
 	let cy_tmp = sin( ((float_of_int orient_aux_2) *. pi) /. 180.0 ) *. 15.0 in
 	let cx = (int_of_float cx_tmp) + fst pos in
 	let cy = (int_of_float cy_tmp) + snd pos in
-	draw_poly [|(ax,ay);(bx,by);(cx,cy)|];
 	fill_poly [|(ax,ay);(bx,by);(cx,cy)|];;
+
+let rec draw_asteroids asteroids = 
+	match asteroids with 
+		| ast::_ -> set_color ast.couleur;
+								fill_circle (fst ast.pos) (snd ast.pos) ast.taille;;
 
 
 let affiche_etat etat = 
-	draw_ship etat.vaisseau.pos etat.vaisseau.orient;;
+	draw_ship etat.vaisseau.pos etat.vaisseau.orient;
+	draw_asteroids etat.asteroids;;
 	
 
 
