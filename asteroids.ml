@@ -148,7 +148,7 @@ let etat_suivant etat = etat;; (* A REDEFINIR *)
 
 (* let affiche_etat etat = ();; (* A REDEFINIR *) *)
 let affiche_etat etat =
-    draw_vaisseau etat.vaisseau.a etat.vaisseau.b etat.vaisseau.c etat.vaisseau.d white;;
+    draw_vaisseau etat.vaisseau.a etat.vaisseau.b etat.vaisseau.c etat.vaisseau.d blue;;
 
 
 (* --- boucle d'interaction --- *)
