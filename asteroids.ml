@@ -140,8 +140,7 @@ let rec etat_suivant_missiles etat =
 		
 
 let etat_suivant etat = 
-	etat_suivant_missiles etat;
-	etat_suivant_asteroids etat;;
+	etat_suivant_asteroids (etat_suivant_missiles etat);;
 
 (* --- affichages graphiques --- *)
 
