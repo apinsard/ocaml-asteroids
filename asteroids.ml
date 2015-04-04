@@ -61,11 +61,11 @@ let init_etat = {vaisseau = {
 
 (* --- changements d'etat --- *)
 
-let rotation_gauche etat = etat;;
-let rotation_droite etat = etat;;
+let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 5 }};;
+let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 5 }};;
 
 (* acceleration du vaisseau *)
-let acceleration etat = etat;; (* A REDEFINIR *)
+let acceleration etat = { etat with vaisseau = {etat.vaisseau with vitesse = 5 }};;
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
 
@@ -83,7 +83,7 @@ let etat_suivant etat = etat;; (* A REDEFINIR *)
 
 (* fonctions d'affichage du vaisseau, d'un asteroide, etc. *)
 
-let draw_ship pos orient = 
+let draw_ship pos orient vitesse = 
 	set_color blue;
 	let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
 	let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
@@ -103,10 +103,8 @@ let draw_ship pos orient =
 	fill_poly [|(ax,ay);(bx,by);(cx,cy)|];;
 
 
-
-
-(* let affiche_etat etat = ();; (* A REDEFINIR *) *)
-let affiche_etat etat = ();;
+let affiche_etat etat = 
+	draw_ship etat.vaisseau.pos etat.vaisseau.orient;;
 	
 
 
@@ -143,9 +141,9 @@ let main () =
           Unix.it_value = 0.05 } in
     Sys.set_signal Sys.sigalrm
     (Sys.Signal_handle (fun _ ->
+			clear_graph ();
       affiche_etat !ref_etat; (* ...afficher l'etat courant... *)
 			(* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
-			draw_ship !ref_etat.vaisseau.pos 46;
       synchronize ();
       ref_etat := etat_suivant !ref_etat)); (* ...puis calculer l'etat suivant *)
   boucle_interaction ref_etat;; (* lancer la boucle d'interaction avec le joueur *)
