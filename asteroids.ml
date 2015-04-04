@@ -12,13 +12,13 @@ let pi = 4.0 *. atan 1.0;;
 
 type coordonees = (int * int);; (* Abscisse et ordonnée sur la fenêtre *)
 type orientation = int;; (* Angle par rapport à la normale en degrés *)
-type vitesse = int;; (* coefficient multiplicateur *)
+type vitesse = float;; (* coefficient multiplicateur *)
 type taille = int;; (* entre 5 et 20 (Arbitraire) *)
 
 
 type missile = {
-    pos: coordonees;
-  orient: orientation
+	pos: coordonees;
+	orient: orientation
 };;
 
 
@@ -56,24 +56,32 @@ let init_etat = {vaisseau = {
 	pos = ((width / 2),(height / 2)); 
 	orient = 0; vitesse = 0.0 };
 	asteroids = [
-		{asteroid = {
+		 {
 				pos = (100, 100);
 				orient = 50;
 				taille = 15;
 				couleur = green;
-				vitesse = zero;
-			}
-		};
-		{asteroid = {
-				pos = (450, 700);
+				vitesse = 2.0;
+			};
+		 {
+				pos = (450, 500);
 				orient = 120;
 				taille = 24;
 				couleur = blue;
-				vitesse = zero;
+				vitesse = 5.0;
 			}
-		}
-	];
+	] ;
 	missiles = []};;
+
+(* --- Autre --- *)
+
+let modulo x m =
+	if x > m then x-m
+	else if x < 0 then m-x
+	else x;;
+
+
+
 
 (* --- changements d'etat --- *)
 
@@ -89,11 +97,50 @@ let acceleration etat = etat;;
 p autour du point o , selon l'angle en radian ang *)
 
 (* tir d'un nouveau projectile *)
-let tir etat = etat;; (* A REDEFINIR *)
+let tir etat = 
+	(* on retrouve les coordonées de la tête de notre fameux vaisseau *)
+	let ax_tmp = cos( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
+	let ay_tmp = sin( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
+	let ax = (int_of_float ax_tmp) + fst etat.vaisseau.pos in
+	let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
+
+	(* on lance le missile ! *)
+	let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient} in
+	{ etat with missiles = new_missile::etat.missiles};;
+	
 
 (* calcul de l'etat suivant, apres un pas de temps *)
-let etat_suivant etat = etat;; (* A REDEFINIR *)
 
+let rec etat_suivant_asteroids etat = 
+	match etat.asteroids with
+		| ast::rest -> let tmp_x = ( cos( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
+									 let tmp_y = ( sin( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
+									 let tmp2_x = ( (fst ast.pos ) + (int_of_float(tmp_x)) ) in
+									 let tmp2_y = ( (snd ast.pos ) + (int_of_float(tmp_y)) ) in
+									 let new_x = modulo tmp2_x width in
+									 let new_y = modulo tmp2_y height in
+									 let new_ast = {ast with pos = (new_x, new_y)} in
+									 {etat with asteroids = new_ast::(etat_suivant_asteroids { etat with asteroids = rest}).asteroids};
+		| _ -> etat;;
+
+let rec etat_suivant_missiles etat =
+	match etat.missiles with
+		| miss::rest -> let tmp_x = ( cos( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
+									 	let tmp_y = ( sin( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
+									 	let new_x = ( (fst miss.pos ) + (int_of_float(tmp_x)) ) in
+									  let new_y = ( (snd miss.pos ) + (int_of_float(tmp_y)) ) in
+										if new_x > width || new_x < 0 || new_y > height || new_y < 0 then
+											etat_suivant_missiles { etat with missiles = rest}
+										else
+											let new_miss = {miss with pos = (new_x, new_y)} in
+									 		{etat with missiles = new_miss::(etat_suivant_missiles { etat with missiles = rest}).missiles};
+		| _ -> etat;;
+
+		
+
+let etat_suivant etat = 
+	etat_suivant_missiles etat;
+	etat_suivant_asteroids etat;;
 
 (* --- affichages graphiques --- *)
 
@@ -119,12 +166,22 @@ let draw_ship pos orient =
 
 let rec draw_asteroids asteroids = 
 	match asteroids with 
-		| ast::_ -> set_color ast.couleur;
-								fill_circle (fst ast.pos) (snd ast.pos) ast.taille;;
+		| ast::rest -> set_color ast.couleur;
+								fill_circle (fst ast.pos) (snd ast.pos) ast.taille;
+								draw_asteroids rest;
+		| _ -> ();;
+
+let rec draw_missiles missiles =
+	match missiles with
+		| miss::rest -> set_color red;
+										fill_circle (fst miss.pos) (snd miss.pos) 3;
+										draw_missiles rest;
+		| _ -> ();;
 
 
 let affiche_etat etat = 
 	draw_ship etat.vaisseau.pos etat.vaisseau.orient;
+	draw_missiles etat.missiles;
 	draw_asteroids etat.asteroids;;
 	
 
