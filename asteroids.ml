@@ -5,7 +5,13 @@ open Graphics;;
 (* dimension fenetre graphique *)
 let width = 1000;;
 let height = 600;;
+
+(* autre def et types *)
 let pi = 4.0 *. atan 1.0;;
+
+type 'a gen = unit -> 'a;;
+let lance gen = gen();;
+let genInt i j = i + Random.int((j-i)+1);;
 
 
 (* --- definition types pour etat du jeu --- *)
@@ -13,7 +19,7 @@ let pi = 4.0 *. atan 1.0;;
 type coordonees = (int * int);; (* Abscisse et ordonnée sur la fenêtre *)
 type orientation = int;; (* Angle par rapport à la normale en degrés *)
 type vitesse = float;; (* coefficient multiplicateur *)
-type taille = int;; (* entre 5 et 20 (Arbitraire) *)
+type taille = int;; (* entre 1 et 5 (Arbitraire) *)
 
 
 type missile = {
@@ -63,14 +69,14 @@ let init_etat = {
     {
       pos = (100, 100);
       orient = 50;
-      taille = 15;
+      taille = 1;
       couleur = green;
       vitesse = 2.0;
     };
     {
       pos = (450, 500);
       orient = 120;
-      taille = 24;
+      taille = 4;
       couleur = blue;
       vitesse = 5.0;
     };
@@ -144,6 +150,48 @@ let rec etat_suivant_missiles etat =
 let etat_suivant etat =
   etat_suivant_asteroids (etat_suivant_missiles etat);;
 
+
+(* --- gestion des collisions --- *)
+
+let eclate_asteroweed etat indice old_taille old_pos old_color =
+  if indice = 0 then etat
+  else 
+    let new_angle = lance( genInt 0 359) in
+    let new_vitesse = float_of_int( lance( genInt 2 8 )) in
+    let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
+    {etat with asteroids = new_ast::(eclate_asteroweed etat (indice -1 ) old_taille old_pos old_color).asteroids}
+  
+  
+
+let handle_collisions_missiles_aux etat missile_pos = 
+  match etat.asteroids with
+    | ast::rest_ast ->
+        let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int (fst ast.pos)) ** 
+                                                  (float_of_int (fst missile_pos)) ) +.
+                                                  ( (float_of_int( snd ast.pos)) ** 
+                                                  (float_of_int (snd missile_pos)) ) ) ) in
+        if dist_miss_ast > (ast.taille + 3 ) then
+          (* pas de collision entre ce missile et l'asteroid *)
+          {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
+        else
+          (* collision : on éclate l'asteroid *)
+          let indice = lance(genInt 2 4 ) in
+          let nouveaux_ast = eclate_asteroweed rest_ast indice ast.taille ast.pos ast.couleur in
+          {etat with asteroids = }
+          
+
+
+
+        
+
+
+
+let handle_collisions_missiles etat =
+  match etat.missiles with
+    | miss::rest_miss ->
+
+let handle_collisions etat =
+
 (* --- affichages graphiques --- *)
 
 (* fonctions d'affichage du vaisseau, d'un asteroide, etc. *)
@@ -169,7 +217,7 @@ let draw_ship pos orient =
 let rec draw_asteroids etat =
   match etat.asteroids with
     | ast::rest -> set_color ast.couleur;
-                fill_circle (fst ast.pos) (snd ast.pos) ast.taille;
+                fill_circle (fst ast.pos) (snd ast.pos) (ast.taille*8);
                 draw_asteroids {etat with asteroids = rest};
     | _ -> ();;
 
