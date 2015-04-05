@@ -121,7 +121,25 @@ S'il n'y a plus d'astéroides, le jeu s'arrête : la partie est gagnée.
 
 \section{Bilan}
 
-\textit{(* À compléter *)}
+Nous avons réalisé le fonctionnement basique du jeu. Le vaisseau est de forme
+triangulaire. Les astéroides sont de forme ronde, de différentes couleurs et de
+différentes tailles. Les missiles sont de forme ronde également, par souci de
+simplicité.
+
+Le tir de missiles est implémenté mais les problèmes suivants restent à
+corriger :
+
+\begin{itemize}
+  \item Une fois un astéroide percuté, le missile continue sa trajectoire
+  \item Seules les collisions avec le dernier missile lancé sont prises en
+    compte.
+\end{itemize}
+
+La collision missile/astéroide est implémentée.
+
+La collision astéroide/vaisseau n'est pas implémentée.
+
+La terminaison du jeu lorsqu'il n'y a plus d'astéroide n'est pas implémentée.
 
 \section{Exécuter le programme}
 
