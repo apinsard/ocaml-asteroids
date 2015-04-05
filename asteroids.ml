@@ -153,13 +153,13 @@ let etat_suivant etat =
 
 (* --- gestion des collisions --- *)
 
-let eclate_asteroweed etat indice old_taille old_pos old_color =
-  if indice = 0 then etat
+let eclate_asteroweed indice old_taille old_pos old_color =
+  if indice = 0 then []
   else 
     let new_angle = lance( genInt 0 359) in
     let new_vitesse = float_of_int( lance( genInt 2 8 )) in
     let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
-    {etat with asteroids = new_ast::(eclate_asteroweed etat (indice -1 ) old_taille old_pos old_color).asteroids}
+    {etat with asteroids = new_ast::(eclate_asteroweed (indice -1 ) old_taille old_pos old_color).asteroids}
   
   
 
@@ -177,7 +177,7 @@ let handle_collisions_missiles_aux etat missile_pos =
           (* collision : on éclate l'asteroid *)
           let indice = lance(genInt 2 4 ) in
           let nouveaux_ast = eclate_asteroweed rest_ast indice ast.taille ast.pos ast.couleur in
-          {etat with asteroids = }
+          {etat with asteroids = nouveaux_ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};
           
 
 
