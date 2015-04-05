@@ -17,9 +17,9 @@ type taille = int;; (* entre 5 et 20 (Arbitraire) *)
 
 
 type missile = {
-	pos: coordonees;
-	orient: orientation;
-	test: color
+  pos: coordonees;
+  orient: orientation;
+  test: color
 };;
 
 
@@ -31,18 +31,18 @@ type vaisseau = {
 
 
 type asteroid = {
-    pos: coordonees;
-    orient: orientation;
-    vitesse: vitesse;
-    taille: taille;
-		couleur: color
+  pos: coordonees;
+  orient: orientation;
+  vitesse: vitesse;
+  taille: taille;
+  couleur: color
 };;
 
 
 type etat = {
-    vaisseau: vaisseau;
-    asteroids: asteroid list;
-    missiles: missile list
+  vaisseau: vaisseau;
+  asteroids: asteroid list;
+  missiles: missile list
 };;
 
 
@@ -52,37 +52,38 @@ type etat = {
 (* on définit dans un enregistrement 'etat' les positions
 de base des éléments constituant le jeu : *)
 
-let init_etat = {vaisseau = {  
-	(* position initiale du vaisseau : le milieu de l'écran : *)
-	pos = ((width / 2),(height / 2)); 
-	orient = 0; vitesse = 0.0 };
-	asteroids = [
-		 {
-				pos = (100, 100);
-				orient = 50;
-				taille = 15;
-				couleur = green;
-				vitesse = 2.0;
-			};
-		 {
-				pos = (450, 500);
-				orient = 120;
-				taille = 24;
-				couleur = blue;
-				vitesse = 5.0;
-			}
-	] ;
-	missiles = []};;
+let init_etat = {
+  vaisseau = {
+    (* position initiale du vaisseau : le milieu de l'écran : *)
+    pos = ((width / 2),(height / 2));
+    orient = 0;
+    vitesse = 0.0;
+  };
+  asteroids = [
+    {
+      pos = (100, 100);
+      orient = 50;
+      taille = 15;
+      couleur = green;
+      vitesse = 2.0;
+    };
+    {
+      pos = (450, 500);
+      orient = 120;
+      taille = 24;
+      couleur = blue;
+      vitesse = 5.0;
+    };
+  ];
+  missiles = [];
+};;
 
 (* --- Autre --- *)
 
 let modulo x m =
-	if x > m then x-m
-	else if x < 0 then m-x
-	else x;;
-
-
-
+  if x > m then x-m
+  else if x < 0 then m-x
+  else x;;
 
 (* --- changements d'etat --- *)
 
@@ -98,115 +99,115 @@ let acceleration etat = etat;;
 p autour du point o , selon l'angle en radian ang *)
 
 (* tir d'un nouveau projectile *)
-let tir etat = 
-	(* on retrouve les coordonées de la tête de notre fameux vaisseau *)
-	let ax_tmp = cos( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
-	let ay_tmp = sin( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
-	let ax = (int_of_float ax_tmp) + fst etat.vaisseau.pos in
-	let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
+let tir etat =
+  (* on retrouve les coordonées de la tête de notre fameux vaisseau *)
+  let ax_tmp = cos( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
+  let ay_tmp = sin( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
+  let ax = (int_of_float ax_tmp) + fst etat.vaisseau.pos in
+  let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
 
-	(* on lance le missile ! *)
-	let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient; test = red} in
-	{ etat with missiles = new_missile::etat.missiles};;
-	
+  (* on lance le missile ! *)
+  let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient; test = red} in
+  { etat with missiles = new_missile::etat.missiles};;
+
 
 (* calcul de l'etat suivant, apres un pas de temps *)
 
-let rec etat_suivant_asteroids etat = 
-	match etat.asteroids with
-		| ast::rest -> let tmp_x = ( cos( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
-									 let tmp_y = ( sin( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
-									 let tmp2_x = ( (fst ast.pos ) + (int_of_float(tmp_x)) ) in
-									 let tmp2_y = ( (snd ast.pos ) + (int_of_float(tmp_y)) ) in
-									 let new_x = modulo tmp2_x width in
-									 let new_y = modulo tmp2_y height in
-									 let new_ast = {ast with pos = (new_x, new_y)} in
-									 {etat with asteroids = new_ast::(etat_suivant_asteroids { etat with asteroids = rest}).asteroids};
-		| _ -> etat;;
+let rec etat_suivant_asteroids etat =
+  match etat.asteroids with
+    | ast::rest ->
+        let tmp_x = ( cos( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
+        let tmp_y = ( sin( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
+        let tmp2_x = ( (fst ast.pos ) + (int_of_float(tmp_x)) ) in
+        let tmp2_y = ( (snd ast.pos ) + (int_of_float(tmp_y)) ) in
+        let new_x = modulo tmp2_x width in
+        let new_y = modulo tmp2_y height in
+        let new_ast = {ast with pos = (new_x, new_y)} in
+        {etat with asteroids = new_ast::(etat_suivant_asteroids { etat with asteroids = rest}).asteroids};
+    | _ -> etat;;
 
 let rec etat_suivant_missiles etat =
-	match etat.missiles with
-		| miss::rest -> let tmp_x = ( cos( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
-									 	let tmp_y = ( sin( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
-									 	let new_x = ( (fst miss.pos ) + (int_of_float(tmp_x)) ) in
-									  let new_y = ( (snd miss.pos ) + (int_of_float(tmp_y)) ) in
-										if new_x > width || new_x < 0 || new_y > height || new_y < 0 then
-											etat_suivant_missiles { etat with missiles = rest} 
-										else
-											let new_miss = {miss with pos = (new_x, new_y)} in
-									 		{etat with missiles = new_miss::(etat_suivant_missiles { etat with missiles = rest}).missiles};
-		| _ -> etat;;
+  match etat.missiles with
+    | miss::rest ->
+        let tmp_x = ( cos( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
+        let tmp_y = ( sin( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
+        let new_x = ( (fst miss.pos ) + (int_of_float(tmp_x)) ) in
+        let new_y = ( (snd miss.pos ) + (int_of_float(tmp_y)) ) in
+        if new_x > width || new_x < 0 || new_y > height || new_y < 0 then
+          etat_suivant_missiles { etat with missiles = rest}
+        else
+          let new_miss = {miss with pos = (new_x, new_y)} in
+          {etat with missiles = new_miss::(etat_suivant_missiles { etat with missiles = rest}).missiles};
+    | _ -> etat;;
 
-		
 
-let etat_suivant etat = 
-	etat_suivant_asteroids (etat_suivant_missiles etat);;
+let etat_suivant etat =
+  etat_suivant_asteroids (etat_suivant_missiles etat);;
 
 (* --- affichages graphiques --- *)
 
 (* fonctions d'affichage du vaisseau, d'un asteroide, etc. *)
 
-let draw_ship pos orient = 
-	set_color blue;
-	let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
-	let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
-	let ax = (int_of_float ax_tmp) + fst pos in
-	let ay = (int_of_float ay_tmp) + snd pos in
-	let orient_aux =  orient + 120 in
-	let bx_tmp = cos( ((float_of_int orient_aux) *. pi) /. 180.0 ) *. 15.0 in
-	let by_tmp = sin( ((float_of_int orient_aux) *. pi) /. 180.0 ) *. 15.0 in
-	let bx = (int_of_float bx_tmp) + fst pos in
-	let by = (int_of_float by_tmp) + snd pos in
-	let orient_aux_2 = orient_aux + 120 in
-	let cx_tmp = cos( ((float_of_int orient_aux_2) *. pi) /. 180.0 ) *. 15.0 in
-	let cy_tmp = sin( ((float_of_int orient_aux_2) *. pi) /. 180.0 ) *. 15.0 in
-	let cx = (int_of_float cx_tmp) + fst pos in
-	let cy = (int_of_float cy_tmp) + snd pos in
-	fill_poly [|(ax,ay);(bx,by);(cx,cy)|];;
+let draw_ship pos orient =
+  set_color blue;
+  let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
+  let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
+  let ax = (int_of_float ax_tmp) + fst pos in
+  let ay = (int_of_float ay_tmp) + snd pos in
+  let orient_aux =  orient + 120 in
+  let bx_tmp = cos( ((float_of_int orient_aux) *. pi) /. 180.0 ) *. 15.0 in
+  let by_tmp = sin( ((float_of_int orient_aux) *. pi) /. 180.0 ) *. 15.0 in
+  let bx = (int_of_float bx_tmp) + fst pos in
+  let by = (int_of_float by_tmp) + snd pos in
+  let orient_aux_2 = orient_aux + 120 in
+  let cx_tmp = cos( ((float_of_int orient_aux_2) *. pi) /. 180.0 ) *. 15.0 in
+  let cy_tmp = sin( ((float_of_int orient_aux_2) *. pi) /. 180.0 ) *. 15.0 in
+  let cx = (int_of_float cx_tmp) + fst pos in
+  let cy = (int_of_float cy_tmp) + snd pos in
+  fill_poly [|(ax,ay);(bx,by);(cx,cy)|];;
 
-let rec draw_asteroids etat = 
-	match etat.asteroids with 
-		| ast::rest -> set_color ast.couleur;
-								fill_circle (fst ast.pos) (snd ast.pos) ast.taille;
-								draw_asteroids {etat with asteroids = rest};
-		| _ -> ();;
+let rec draw_asteroids etat =
+  match etat.asteroids with
+    | ast::rest -> set_color ast.couleur;
+                fill_circle (fst ast.pos) (snd ast.pos) ast.taille;
+                draw_asteroids {etat with asteroids = rest};
+    | _ -> ();;
 
 let rec draw_missiles etat =
-	match etat.missiles with
-		| miss::rest -> set_color miss.test;
-										fill_circle (fst miss.pos) (snd miss.pos) 3;
-										draw_missiles {etat with missiles = rest};
-		| _ -> ();;
+  match etat.missiles with
+    | miss::rest -> set_color miss.test;
+                    fill_circle (fst miss.pos) (snd miss.pos) 3;
+                    draw_missiles {etat with missiles = rest};
+    | _ -> ();;
 
 
-let affiche_etat etat = 
-	draw_ship etat.vaisseau.pos etat.vaisseau.orient;
-	draw_missiles etat;
-	draw_asteroids etat;;
-	
+let affiche_etat etat =
+  draw_ship etat.vaisseau.pos etat.vaisseau.orient;
+  draw_missiles etat;
+  draw_asteroids etat;;
 
 
 (* --- boucle d'interaction --- *)
 
 let rec boucle_interaction ref_etat =
-    let status = wait_next_event [Key_pressed] in (* on attend une frappe clavier *)
-    let etat = !ref_etat in (* on recupere l'etat courant *)
-    let nouvel_etat = (* on definit le nouvel etat... *)
-        match status.key with (* ...en fonction de la touche frappee *)
+  let status = wait_next_event [Key_pressed] in (* on attend une frappe clavier *)
+  let etat = !ref_etat in (* on recupere l'etat courant *)
+  let nouvel_etat = (* on definit le nouvel etat... *)
+    match status.key with (* ...en fonction de la touche frappee *)
         | '1' | 'j' -> rotation_gauche etat (* rotation vers la gauche *)
         | '2' | 'k' -> acceleration etat (* acceleration vers l'avant *)
         | '3' | 'l' -> rotation_droite etat (* rotation vers la droite *)
         | ' ' -> tir etat (* tir d'un projectile *)
         | 'q' -> print_endline "Bye bye!"; exit 0 (* on quitte le jeux *)
         | _ -> etat in (* sinon, rien ne se passe *)
-            ref_etat := nouvel_etat; (* on enregistre le nouvel etat *)
+  ref_etat := nouvel_etat; (* on enregistre le nouvel etat *)
             boucle_interaction ref_etat;; (* on se remet en attente de frappe clavier *)
 
 (* --- fonction principale --- *)
 
 let main () =
-    (* initialisation du generateur aleatoire *)
-    Random.self_init ();
+  (* initialisation du generateur aleatoire *)
+  Random.self_init ();
     (* initialisation de la fenetre graphique et de l'affichage *)
     open_graph (" " ^ string_of_int width ^ "x" ^ string_of_int height);
     auto_synchronize false;
@@ -219,9 +220,9 @@ let main () =
           Unix.it_value = 0.05 } in
     Sys.set_signal Sys.sigalrm
     (Sys.Signal_handle (fun _ ->
-			clear_graph ();
+      clear_graph ();
       affiche_etat !ref_etat; (* ...afficher l'etat courant... *)
-			(* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
+      (* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
       synchronize ();
       ref_etat := etat_suivant !ref_etat)); (* ...puis calculer l'etat suivant *)
   boucle_interaction ref_etat;; (* lancer la boucle d'interaction avec le joueur *)
