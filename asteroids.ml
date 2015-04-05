@@ -189,7 +189,7 @@ let rec handle_collisions_missiles_aux etat missile_pos rest_miss =
             let indice = lance(genInt 2 4 ) in
             let nouveaux_ast = eclate_asteroweed indice ast.taille ast.pos ast.couleur in
             (*{etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids};*)
-            {etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids; missiles = rest_miss};
+            {etat with asteroids = nouveaux_ast @ rest_ast; missiles = rest_miss};
     | _ -> etat;;
 
 
