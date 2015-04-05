@@ -161,7 +161,6 @@ let eclate_asteroweed indice old_taille old_pos old_color =
     let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
     new_ast::(eclate_asteroweed (indice -1 ) old_taille old_pos old_color);;
   
-  
 
 let handle_collisions_missiles_aux etat missile_pos = 
   match etat.asteroids with
@@ -175,21 +174,20 @@ let handle_collisions_missiles_aux etat missile_pos =
           {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
         else
           (* collision : on éclate l'asteroid *)
-          let indice = lance(genInt 2 4 ) in
-          let nouveaux_ast = eclate_asteroweed rest_ast indice ast.taille ast.pos ast.couleur in
-          {etat with asteroids = nouveaux_ast @ (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};
+          if ast.taille = 1 then
+             {etat with asteroids = (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
+          else
+            let indice = lance(genInt 2 4 ) in
+            let nouveaux_ast = eclate_asteroweed indice ast.taille ast.pos ast.couleur in
+            {etat with asteroids = nouveaux_ast @ (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};
     | _ -> etat;;  
           
-
-
-
-        
-
-
 
 let handle_collisions_missiles etat =
   match etat.missiles with
     | miss::rest_miss ->
+        
+    | _ -> etat;;
 
 let handle_collisions etat =
 
