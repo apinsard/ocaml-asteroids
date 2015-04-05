@@ -47,4 +47,11 @@
 La majeur partie du projet réside dans la gestion des formes et déplacements
 dans le plan.
 
+Afin de gérer cela, nous avons décidé d'attribuer à chaque objet (vaisseau,
+astéroide, missile), une position (celle de son centre de gravité), une
+orientation et une vitesse. Ainsi, à chaque étape, nous modifions la position
+du centre de gravité en fonction de la vitesse et de l'orientation. Puis nous
+recalculons la position des différents sommets du polygone en fonction de la
+taille de l'objet, de son centre de gravité et de son orientation.
+
 \end{document}
