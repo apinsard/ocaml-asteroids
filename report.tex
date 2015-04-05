@@ -66,7 +66,7 @@ place.
 
 \section{Analyse du problème}
 
-Le calcule de l'état suivant se découpe en 5 étapes :
+Le calcule de l'état suivant se découpe en 6 étapes :
 
 \begin{itemize}
   \item Calcul du nouvel état du vaisseau
@@ -75,6 +75,7 @@ Le calcule de l'état suivant se découpe en 5 étapes :
   \item Vérification des collisions asteroide/vaisseau
   \item Vérification des collisions astéroide/missile et recalcul de l'état des
     astéroides le cas échéant.
+  \item Vérification de la présence d'astéroides
 \end{itemize}
 
 \subsection{Calcul du nouvel état du vaisseau}
@@ -103,9 +104,20 @@ lorsqu'il sort d'un côté.
 
 \subsection{Vérification des collisions astéroide/vaisseau}
 
-On parcourt la liste des astéroides et 
+On parcourt la liste des astéroides et on vérifie la distance avec le vaisseau.
+Si la distance est trop faible, le jeu se termine : partie perdue.
 
 \subsection{Vérification des collisions astéroide/missile}
+
+On parcourt la liste des missiles. Pour chaque missile on parcourt la liste des
+astéroides. On calcul la distance entre les deux objets. Si elle est trop faible,
+le missile est supprimé et l'astéroide éclatée en 2 à 4 astéroide de taille
+inférieure. Si la taille était déjà de 1 (la taille minimum), l'astéroide est
+simplement détruite.
+
+\subsection{Vérification de la présence d'astéroides}
+
+S'il n'y a plus d'astéroides, le jeu s'arrête : la partie est gagnée.
 
 \section{Bilan}
 
