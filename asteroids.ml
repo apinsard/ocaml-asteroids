@@ -90,6 +90,16 @@ let modulo x m =
   if n >= 0 then n
   else n+m;;
 
+let rec deleteMiss etat pos = 
+  match etat.missiles with 
+    | miss::res -> let tmp_pos = miss.pos in
+                if tmp_pos = pos then
+                  {etat with missiles = (deleteMiss {etat with missiles = res} pos ).missiles}
+                else
+                  {etat with missiles = miss::(deleteMiss {etat with missiles = res} pos ).missiles};
+    | _ -> etat;;
+  
+
 (* --- changements d'etat --- *)
 
 let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 5 }};;
@@ -161,23 +171,24 @@ let rec eclate_asteroweed indice old_taille old_pos old_color =
     new_ast::( eclate_asteroweed (indice-1) old_taille old_pos old_color);;
   
 
-let rec handle_collisions_missiles_aux etat missile_pos = 
+let rec handle_collisions_missiles_aux etat missile_pos rest_miss = 
   match etat.asteroids with
     | ast::rest_ast ->
         let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst missile_pos)) ** 2.0 ) +.
                                                   ( (float_of_int ((snd ast.pos) - (snd missile_pos)) ** 2.0) ) ) ) ) in
         if dist_miss_ast > ((ast.taille * 8) + 3 ) then
           (* pas de collision entre ce missile et l'asteroid *)
-          {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
+          {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos rest_miss).asteroids}
         else
           (* collision : on éclate l'asteroid *)
           if ast.taille = 1 then
-             {etat with asteroids = (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
+             (*{etat with asteroids = (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}*)
+             {etat with asteroids = {etat with asteroids = rest_ast}.asteroids; missiles = rest_miss}
           else
             let indice = lance(genInt 2 4 ) in
             let nouveaux_ast = eclate_asteroweed indice ast.taille ast.pos ast.couleur in
-            (*{etat with asteroids = nouveaux_ast @ (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};*)
-            {etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids};
+            (*{etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids};*)
+            {etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids; missiles = rest_miss};
     | _ -> etat;;  
           
 
@@ -185,7 +196,7 @@ let rec handle_collisions_missiles etat =
   match etat.missiles with
     | miss::rest_miss ->
         {etat with missiles = miss::(handle_collisions_missiles {etat with missiles = rest_miss}).missiles;
-                   asteroids = (handle_collisions_missiles_aux etat miss.pos).asteroids};
+                   asteroids = (handle_collisions_missiles_aux etat miss.pos rest_miss).asteroids};
     | _ -> etat;;
 
 let handle_collisions etat = 
