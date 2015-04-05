@@ -11,7 +11,7 @@ let pi = 4.0 *. atan 1.0;;
 
 type 'a gen = unit -> 'a;;
 let lance gen = gen();;
-let genInt i j = i + Random.int((j-i)+1);;
+let genInt i j = function() -> i + Random.int((j-i)+1);;
 
 
 (* --- definition types pour etat du jeu --- *)
@@ -24,8 +24,7 @@ type taille = int;; (* entre 1 et 5 (Arbitraire) *)
 
 type missile = {
   pos: coordonees;
-  orient: orientation;
-  test: color
+  orient: orientation
 };;
 
 
@@ -113,7 +112,7 @@ let tir etat =
   let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
 
   (* on lance le missile ! *)
-  let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient; test = red} in
+  let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient} in
   { etat with missiles = new_missile::etat.missiles};;
 
 
@@ -153,16 +152,16 @@ let etat_suivant etat =
 
 (* --- gestion des collisions --- *)
 
-let eclate_asteroweed indice old_taille old_pos old_color =
+let rec eclate_asteroweed indice old_taille old_pos old_color =
   if indice = 0 then []
   else 
     let new_angle = lance( genInt 0 359) in
     let new_vitesse = float_of_int( lance( genInt 2 8 )) in
     let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
-    new_ast::(eclate_asteroweed (indice -1 ) old_taille old_pos old_color);;
+    new_ast::( eclate_asteroweed (indice-1) old_taille old_pos old_color);;
   
 
-let handle_collisions_missiles_aux etat missile_pos = 
+let rec handle_collisions_missiles_aux etat missile_pos = 
   match etat.asteroids with
     | ast::rest_ast ->
         let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int (fst ast.pos)) ** 
@@ -183,13 +182,15 @@ let handle_collisions_missiles_aux etat missile_pos =
     | _ -> etat;;  
           
 
-let handle_collisions_missiles etat =
+let rec handle_collisions_missiles etat =
   match etat.missiles with
     | miss::rest_miss ->
-        
+        {etat with missiles = miss::(handle_collisions_missiles {etat with missiles = rest_miss}).missiles;
+                   asteroids = (handle_collisions_missiles_aux etat miss.pos).asteroids};
     | _ -> etat;;
 
-let handle_collisions etat =
+let handle_collisions etat = 
+  handle_collisions_missiles etat;;
 
 (* --- affichages graphiques --- *)
 
@@ -222,7 +223,7 @@ let rec draw_asteroids etat =
 
 let rec draw_missiles etat =
   match etat.missiles with
-    | miss::rest -> set_color miss.test;
+    | miss::rest -> set_color red;
                     fill_circle (fst miss.pos) (snd miss.pos) 3;
                     draw_missiles {etat with missiles = rest};
     | _ -> ();;
@@ -271,7 +272,9 @@ let main () =
       affiche_etat !ref_etat; (* ...afficher l'etat courant... *)
       (* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
       synchronize ();
-      ref_etat := etat_suivant !ref_etat)); (* ...puis calculer l'etat suivant *)
+      ref_etat := etat_suivant !ref_etat;
+      ref_etat := handle_collisions !ref_etat)); (* ...puis calculer l'etat suivant *)
+      (* test *)
   boucle_interaction ref_etat;; (* lancer la boucle d'interaction avec le joueur *)
 
 let _ = main ();; (* demarrer le jeu *)
