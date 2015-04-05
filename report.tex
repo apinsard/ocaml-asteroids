@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{xcolor}
+\usepackage{mathtools}
 
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
@@ -44,7 +45,7 @@
 
 \section{Introduction}
 
-La majeur partie du projet réside dans la gestion des formes et déplacements
+La majeur partie du projet réside dans la gestion des déplacements des formes
 dans le plan.
 
 Afin de gérer cela, nous avons décidé d'attribuer à chaque objet (vaisseau,
@@ -75,6 +76,18 @@ Le calcule de l'état suivant se découpe en 5 étapes :
   \item Vérification des collisions astéroide/missile et recalcul de l'état des
     astéroides le cas échéant.
 \end{itemize}
+
+\subsection{Calcul du nouvel état du vaisseau}
+
+L'accélération n'étant pas implémentée, et la rotation étant traitée
+directement à l'enfoncement des touche "j" et "l", cette étape est omise.
+
+\subsection{Calcul du nouvel état des missiles}
+
+Le déplacement d'un missile se fait à l'aide de la formule suivante :
+
+\[new\_pos = pos + (\cos (orientation) * vitesse, \sin(orientation) * vitesse)\]
+Si la nouvelle position sort du cadre de jeu, le missile est supprimé.
 
 \section{Bilan}
 
