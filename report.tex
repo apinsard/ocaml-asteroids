@@ -47,4 +47,56 @@
 La majeur partie du projet réside dans la gestion des formes et déplacements
 dans le plan.
 
+Afin de gérer cela, nous avons décidé d'attribuer à chaque objet (vaisseau,
+astéroide, missile), une position (celle de son centre de gravité), une
+orientation et une vitesse. Ainsi, à chaque étape, nous modifions la position
+du centre de gravité en fonction de la vitesse et de l'orientation. Puis nous
+recalculons la position des différents sommets du polygone en fonction de la
+taille de l'objet, de son centre de gravité et de son orientation. Pour la
+rotation du vaisseau, il suffit de modifier son orientation.
+
+Se pose ensuite le problème des collisions. Pour cela, après avoir calculé
+l'état suivant, il faut vérifier l'intersection entre le vaisseau et chaque
+astéroide. Si elle est vide, on ne fait rien. Si elle n'est pas vide, la partie
+est perdue. Il faut également vérifier l'intersection entre chaque astéroide et
+chaque missile. Si l'intersection est vide, on ne fait rien. Si elle n'est pas
+vide, on supprime le missile et lance le comportement d'explosion de
+l'astéroide.
+
+\section{Analyse du problème}
+
+Le calcule de l'état suivant se découpe en 5 étapes :
+
+\begin{itemize}
+  \item Calcul du nouvel état du vaisseau
+  \item Calcul du nouvel état des missiles
+  \item Calcul du nouvel état des astéroides
+  \item Vérification des collisions asteroide/vaisseau
+  \item Vérification des collisions astéroide/missile et recalcul de l'état des
+    astéroides le cas échéant.
+\end{itemize}
+
+\section{Bilan}
+
+\textit{(* À compléter *)}
+
+\section{Exécuter le programme}
+
+\texttt{./asteroids}
+
+\section{Rapport de test}
+
+\textit{(* À compléter *)}
+
+\section{Conclusion}
+
+La réalisation du projet nous a pris deux jours. Les difficultées que nous
+avons rencontrés sont le manque de documentation du langage. Très peu de site
+référencent les bibliothèques et built-ins d'Ocaml. Globalement, la seule
+ressource valable est \texttt{caml.inria.fr}. Il est aussi assez difficile
+d'exploiter l'interpréteur interactif pour effectuer de petits tests et
+vérifier rapidement des résultats attendus. En effet il n'est pas possible
+d'utiliser les flèches directionnelles pour se déplacer sur la ligne courante
+et rappeler des commandes précédemment exécutées.
+
 \end{document}
