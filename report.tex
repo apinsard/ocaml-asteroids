@@ -56,13 +56,13 @@ recalculons la position des différents sommets du polygone en fonction de la
 taille de l'objet, de son centre de gravité et de son orientation. Pour la
 rotation du vaisseau, il suffit de modifier son orientation.
 
-Se pose ensuite le problème des collisions. Pour cela, après avoir calculé
-l'état suivant, il faut vérifier l'intersection entre le vaisseau et chaque
-astéroide. Si elle est vide, on ne fait rien. Si elle n'est pas vide, la partie
-est perdue. Il faut également vérifier l'intersection entre chaque astéroide et
-chaque missile. Si l'intersection est vide, on ne fait rien. Si elle n'est pas
-vide, on supprime le missile et lance le comportement d'explosion de
-l'astéroide.
+Se pose ensuite le problème des collisions. Nous avons d'abord pensé à calculer
+l'intersection entre chaque astéroide/missile et entre le vaisseau et chaque
+astéroide. Afin de simplifier le problème nous avons finalement décider de
+calculer la distance entre les deux éléments. Si la distance est inférieure à
+la somme des rayons des objets, on peut considère une collision. Cette méthode
+est moins précise que celle de l'intersection, mais plus simple à mettre en
+place.
 
 \section{Analyse du problème}
 
@@ -87,7 +87,25 @@ directement à l'enfoncement des touche "j" et "l", cette étape est omise.
 Le déplacement d'un missile se fait à l'aide de la formule suivante :
 
 \[new\_pos = pos + (\cos (orientation) * vitesse, \sin(orientation) * vitesse)\]
+
 Si la nouvelle position sort du cadre de jeu, le missile est supprimé.
+
+\subsection{Calcul du nouvel état des astéroides}
+
+Le calcul du déplacement d'un astéroide se fait de la même manière que pour
+celui d'un missile :
+
+\[new\_pos = pos + (\cos (orientation) * vitesse, \sin(orientation) * vitesse)\]
+
+En revanche, la position est calculée modulo (largeur du cadre, hauteur du
+cadre) de manière à faire réapparaitre l'astéroide de l'autre côté de l'écran
+lorsqu'il sort d'un côté.
+
+\subsection{Vérification des collisions astéroide/vaisseau}
+
+On parcourt la liste des astéroides et 
+
+\subsection{Vérification des collisions astéroide/missile}
 
 \section{Bilan}
 
