@@ -87,9 +87,9 @@ let init_etat = {
 (* --- Autre --- *)
 
 let modulo x m =
-  if x > m then x-m
-  else if x < 0 then m-x
-  else x;;
+  let n = x mod m in
+  if n >= 0 then n
+  else n+m;;
 
 (* --- changements d'etat --- *)
 
