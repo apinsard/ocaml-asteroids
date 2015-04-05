@@ -56,7 +56,7 @@ let init_etat = {
   vaisseau = {
     (* position initiale du vaisseau : le milieu de l'écran : *)
     pos = ((width / 2),(height / 2));
-    orient = 0;
+    orient = 90;
     vitesse = 0.0;
   };
   asteroids = [
@@ -150,8 +150,8 @@ let etat_suivant etat =
 
 let draw_ship pos orient =
   set_color blue;
-  let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
-  let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 15.0 in
+  let ax_tmp = cos( ((float_of_int orient) *. pi) /. 180.0 ) *. 20.0 in
+  let ay_tmp = sin( ((float_of_int orient) *. pi) /. 180.0 ) *. 20.0 in
   let ax = (int_of_float ax_tmp) + fst pos in
   let ay = (int_of_float ay_tmp) + snd pos in
   let orient_aux =  orient + 120 in
