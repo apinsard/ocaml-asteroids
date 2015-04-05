@@ -164,11 +164,9 @@ let rec eclate_asteroweed indice old_taille old_pos old_color =
 let rec handle_collisions_missiles_aux etat missile_pos = 
   match etat.asteroids with
     | ast::rest_ast ->
-        let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int (fst ast.pos)) ** 
-                                                  (float_of_int (fst missile_pos)) ) +.
-                                                  ( (float_of_int( snd ast.pos)) ** 
-                                                  (float_of_int (snd missile_pos)) ) ) ) in
-        if dist_miss_ast > (ast.taille + 3 ) then
+        let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst missile_pos)) ** 2.0 ) +.
+                                                  ( (float_of_int ((snd ast.pos) - (snd missile_pos)) ** 2.0) ) ) ) ) in
+        if dist_miss_ast > ((ast.taille * 8) + 3 ) then
           (* pas de collision entre ce missile et l'asteroid *)
           {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
         else
@@ -178,7 +176,8 @@ let rec handle_collisions_missiles_aux etat missile_pos =
           else
             let indice = lance(genInt 2 4 ) in
             let nouveaux_ast = eclate_asteroweed indice ast.taille ast.pos ast.couleur in
-            {etat with asteroids = nouveaux_ast @ (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};
+            (*{etat with asteroids = nouveaux_ast @ (handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids};*)
+            {etat with asteroids = nouveaux_ast @ {etat with asteroids = rest_ast}.asteroids};
     | _ -> etat;;  
           
 
