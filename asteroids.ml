@@ -190,17 +190,16 @@ let rec handle_collisions_missiles_aux etat missile_pos =
     | _ -> etat;;  
           
 
-let rec handle_collisions_missiles etat =
-  match etat.missiles with
-    | miss::rest_miss ->
-        let tmp_astero = handle_collisions_missiles_aux etat miss.pos in
+let rec handle_collisions_missiles etat indice = 
+  if indice = (-1) then etat 
+  else 
+    let liste_asteroids = handle_collisions_missiles_aux etat (List.nth etat.missiles indice).pos in
+    handle_collisions_missiles { etat with asteroids = liste_asteroids.asteroids } (indice-1);;
 
-        {etat with missiles = miss::(handle_collisions_missiles {etat with missiles = rest_miss}).missiles;
-                   asteroids = etat_tmp.asteroids};
-    | _ -> etat;;
 
 let handle_collisions etat = 
-  handle_collisions_missiles etat;;
+  let indice = (List.length etat.missiles) -1  in
+  handle_collisions_missiles etat indice ;;
 
 (* --- affichages graphiques --- *)
 
