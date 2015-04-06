@@ -57,14 +57,40 @@ type etat = {
 (* on définit dans un enregistrement 'etat' les positions
 de base des éléments constituant le jeu : *)
 
-let init_etat = {
+let ret_color nb = 
+  if nb = 1 then black else
+  if nb = 2 then green else
+  if nb = 3 then cyan else
+  magenta;;
+
+let rec random_asteroid indice =
+  if indice = 0 then []
+  else
+  let pos_x = lance( genInt 1 999 ) in
+  let pos_y = lance( genInt 1 599 ) in
+  if pos_x < 500 && pos_x > 400 && pos_y < 350 && pos_y > 250 then
+    random_asteroid indice
+  else
+    let couleur_rand = lance( genInt 1 4 ) in
+    let vit = float_of_int( lance( genInt 2 6 )) in
+    let new_orient = (lance( genInt 0 359 )) in
+    let new_taille = (lance( genInt 3 4)) in
+    let new_ast = {pos = (pos_x,pos_y); orient = new_orient; taille = new_taille; couleur = ret_color couleur_rand; vitesse = vit } in
+    new_ast :: random_asteroid (indice-1);;
+
+let init_etat = 
+  let nb_ast = lance( genInt 4 5 ) in
+  let liste_asteroids = random_asteroid nb_ast in
+{
   vaisseau = {
     (* position initiale du vaisseau : le milieu de l'écran : *)
     pos = ((width / 2),(height / 2));
     orient = 90;
     vitesse = 0.0;
   };
-  asteroids = [
+  asteroids = liste_asteroids;
+  
+  (*[
     {
       pos = (100, 100);
       orient = 50;
@@ -79,9 +105,11 @@ let init_etat = {
       couleur = blue;
       vitesse = 5.0;
     };
-  ];
+  ];*)
   missiles = [];
 };;
+
+    
 
 (* --- Autre --- *)
 
@@ -154,7 +182,7 @@ let rec eclate_asteroweed indice old_taille old_pos old_color =
   if indice = 0 then []
   else 
     let new_angle = lance( genInt 0 359) in
-    let new_vitesse = float_of_int( lance( genInt 2 8 )) in
+    let new_vitesse = float_of_int( lance( genInt 2 6 )) in
     let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
     new_ast::( eclate_asteroweed (indice-1) old_taille old_pos old_color);;
   
