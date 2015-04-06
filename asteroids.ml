@@ -89,15 +89,6 @@ let modulo x m =
   let n = x mod m in
   if n >= 0 then n
   else n+m;;
-
-let rec deleteMiss etat pos = 
-  match etat.missiles with 
-    | miss::res -> let tmp_pos = miss.pos in
-                if tmp_pos = pos then
-                  {etat with missiles = (deleteMiss {etat with missiles = res} pos ).missiles}
-                else
-                  {etat with missiles = miss::(deleteMiss {etat with missiles = res} pos ).missiles};
-    | _ -> etat;;
   
 
 (* --- changements d'etat --- *)
@@ -109,9 +100,6 @@ let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = e
 let acceleration etat = etat;;
 
 (* rotation vers la gauche et vers la droite du vaisseau *)
-
-(* cette fonction a pour but d'effectuer une rotation du point
-p autour du point o , selon l'angle en radian ang *)
 
 (* tir d'un nouveau projectile *)
 let tir etat =
@@ -196,10 +184,23 @@ let rec handle_collisions_missiles etat indice =
     let liste_asteroids = handle_collisions_missiles_aux etat (List.nth etat.missiles indice).pos in
     handle_collisions_missiles { etat with asteroids = liste_asteroids.asteroids } (indice-1);;
 
+let rec handle_collisions_vaisseau etat vaisseau_pos =
+  match etat.asteroids with
+    | ast::rest_ast ->
+        let dist_vaisseau_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst vaisseau_pos)) ** 2.0 ) +.
+                                                   ( (float_of_int ((snd ast.pos) - (snd vaisseau_pos)) ** 2.0) ) ) ) ) in
+        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 13 ) ) then
+          {etat with asteroids = ast::(handle_collisions_vaisseau {etat with asteroids = rest_ast} vaisseau_pos).asteroids}
+        else
+          let tmp = print_endline "Perdu !" in
+          exit 0;
+   | _ -> etat;;
+
 
 let handle_collisions etat = 
   let indice = (List.length etat.missiles) -1  in
-  handle_collisions_missiles etat indice ;;
+  let vaisseau_pos = etat.vaisseau.pos in
+  handle_collisions_vaisseau ( handle_collisions_missiles etat indice ) vaisseau_pos ;;
 
 (* --- affichages graphiques --- *)
 
@@ -281,8 +282,11 @@ let main () =
       affiche_etat !ref_etat; (* ...afficher l'etat courant... *)
       (* draw_ship !ref_etat.vaisseau.pos !ref_etat.vaisseau.orient; *)
       synchronize ();
-      ref_etat := etat_suivant !ref_etat;
-      ref_etat := handle_collisions !ref_etat)); (* ...puis calculer l'etat suivant *)
+      ref_etat := etat_suivant !ref_etat; (* ...puis calculer l'etat suivant *)
+      ref_etat := handle_collisions !ref_etat;
+      if List.length !ref_etat.asteroids = 0 then
+      let tmp = print_endline "Gagné !" in exit 0
+      ));
       (* test *)
   boucle_interaction ref_etat;; (* lancer la boucle d'interaction avec le joueur *)
 
