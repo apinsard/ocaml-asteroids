@@ -74,13 +74,11 @@ let rec random_asteroid indice =
     let couleur_rand = lance( genInt 1 4 ) in
     let vit = float_of_int( lance( genInt 2 6 )) in
     let new_orient = (lance( genInt 0 359 )) in
-    let new_taille = (lance( genInt 3 4)) in
+    let new_taille = (lance( genInt 3 5)) in
     let new_ast = {pos = (pos_x,pos_y); orient = new_orient; taille = new_taille; couleur = ret_color couleur_rand; vitesse = vit } in
     new_ast :: random_asteroid (indice-1);;
 
-let init_etat = 
-  let nb_ast = lance( genInt 4 5 ) in
-  let liste_asteroids = random_asteroid nb_ast in
+let init_etat liste_asteroids = 
 {
   vaisseau = {
     (* position initiale du vaisseau : le milieu de l'écran : *)
@@ -217,7 +215,7 @@ let rec handle_collisions_vaisseau etat vaisseau_pos =
     | ast::rest_ast ->
         let dist_vaisseau_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst vaisseau_pos)) ** 2.0 ) +.
                                                    ( (float_of_int ((snd ast.pos) - (snd vaisseau_pos)) ** 2.0) ) ) ) ) in
-        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 13 ) ) then
+        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 10 ) ) then
           {etat with asteroids = ast::(handle_collisions_vaisseau {etat with asteroids = rest_ast} vaisseau_pos).asteroids}
         else
           let tmp = print_endline "Perdu !" in
@@ -298,8 +296,8 @@ let main () =
     open_graph (" " ^ string_of_int width ^ "x" ^ string_of_int height);
     auto_synchronize false;
     (* initialisation de l'etat du jeu *)
-    (*let ref_etat = ref (init_etat ()) in *)
-    let ref_etat = ref init_etat in
+    let indice = lance(genInt 3 6 ) in
+    let ref_etat = ref (init_etat (random_asteroid indice )) in
     (* programmation du refraichissement periodique de l'etat du jeu et de son affichage *)
     let _ = Unix.setitimer Unix.ITIMER_REAL
         { Unix.it_interval = 0.05; (* tous les 1/20eme de seconde... *)
