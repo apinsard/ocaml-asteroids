@@ -57,7 +57,7 @@ type etat = {
 (* on définit dans un enregistrement 'etat' les positions
 de base des éléments constituant le jeu : *)
 
-let ret_color nb = 
+let ret_color nb =
   if nb = 1 then black else
   if nb = 2 then green else
   if nb = 3 then cyan else
@@ -78,7 +78,7 @@ let rec random_asteroid indice =
     let new_ast = {pos = (pos_x,pos_y); orient = new_orient; taille = new_taille; couleur = ret_color couleur_rand; vitesse = vit } in
     new_ast :: random_asteroid (indice-1);;
 
-let init_etat liste_asteroids = 
+let init_etat liste_asteroids =
 {
   vaisseau = {
     (* position initiale du vaisseau : le milieu de l'écran : *)
@@ -87,7 +87,7 @@ let init_etat liste_asteroids =
     vitesse = 0.0;
   };
   asteroids = liste_asteroids;
-  
+
   (*[
     {
       pos = (100, 100);
@@ -107,7 +107,7 @@ let init_etat liste_asteroids =
   missiles = [];
 };;
 
-    
+
 
 (* --- Autre --- *)
 
@@ -115,7 +115,7 @@ let modulo x m =
   let n = x mod m in
   if n >= 0 then n
   else n+m;;
-  
+
 
 (* --- changements d'etat --- *)
 
@@ -178,14 +178,14 @@ let etat_suivant etat =
 
 let rec eclate_asteroweed indice old_taille old_pos old_color =
   if indice = 0 then []
-  else 
+  else
     let new_angle = lance( genInt 0 359) in
     let new_vitesse = float_of_int( lance( genInt 2 6 )) in
     let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
     new_ast::( eclate_asteroweed (indice-1) old_taille old_pos old_color);;
-  
 
-let rec handle_collisions_missiles_aux etat missile_pos = 
+
+let rec handle_collisions_missiles_aux etat missile_pos =
   match etat.asteroids with
     | ast::rest_ast ->
         let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst missile_pos)) ** 2.0 ) +.
@@ -201,12 +201,12 @@ let rec handle_collisions_missiles_aux etat missile_pos =
             let indice = lance(genInt 2 4 ) in
             let nouveaux_ast = eclate_asteroweed indice ast.taille ast.pos ast.couleur in
             {etat with asteroids = nouveaux_ast @ rest_ast};
-    | _ -> etat;;  
-          
+    | _ -> etat;;
 
-let rec handle_collisions_missiles etat indice = 
-  if indice = (-1) then etat 
-  else 
+
+let rec handle_collisions_missiles etat indice =
+  if indice = (-1) then etat
+  else
     let liste_asteroids = handle_collisions_missiles_aux etat (List.nth etat.missiles indice).pos in
     handle_collisions_missiles { etat with asteroids = liste_asteroids.asteroids } (indice-1);;
 
@@ -218,12 +218,11 @@ let rec handle_collisions_vaisseau etat vaisseau_pos =
         if dist_vaisseau_ast > ( (ast.taille * 8) + ( 10 ) ) then
           {etat with asteroids = ast::(handle_collisions_vaisseau {etat with asteroids = rest_ast} vaisseau_pos).asteroids}
         else
-          let tmp = print_endline "Perdu !" in
-          exit 0;
+          (print_endline "Perdu !";exit 0);
    | _ -> etat;;
 
 
-let handle_collisions etat = 
+let handle_collisions etat =
   let indice = (List.length etat.missiles) -1  in
   let vaisseau_pos = etat.vaisseau.pos in
   handle_collisions_vaisseau ( handle_collisions_missiles etat indice ) vaisseau_pos ;;
@@ -311,7 +310,7 @@ let main () =
       ref_etat := etat_suivant !ref_etat; (* ...puis calculer l'etat suivant *)
       ref_etat := handle_collisions !ref_etat;
       if List.length !ref_etat.asteroids = 0 then
-      let tmp = print_endline "Gagné !" in exit 0
+        (print_endline "Gagné !"; exit 0)
       ));
       (* test *)
   boucle_interaction ref_etat;; (* lancer la boucle d'interaction avec le joueur *)
