@@ -53,7 +53,7 @@ type etat = {
 
 (* --- initialisations etat --- *)
 
-(* A DEFINIR : generation positions, deplacements initiaux ... *)
+(* generation positions, deplacements initiaux ... *)
 (* on définit dans un enregistrement 'etat' les positions
 de base des éléments constituant le jeu : *)
 
@@ -87,23 +87,6 @@ let init_etat liste_asteroids =
     vitesse = 0.0;
   };
   asteroids = liste_asteroids;
-
-  (*[
-    {
-      pos = (100, 100);
-      orient = 50;
-      taille = 1;
-      couleur = green;
-      vitesse = 2.0;
-    };
-    {
-      pos = (450, 500);
-      orient = 120;
-      taille = 4;
-      couleur = blue;
-      vitesse = 5.0;
-    };
-  ];*)
   missiles = [];
 };;
 
@@ -119,8 +102,8 @@ let modulo x m =
 
 (* --- changements d'etat --- *)
 
-let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 5 }};;
-let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 5 }};;
+let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 8 }};;
+let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 8 }};;
 
 (* acceleration du vaisseau *)
 let acceleration etat = etat;;
@@ -215,7 +198,7 @@ let rec handle_collisions_vaisseau etat vaisseau_pos =
     | ast::rest_ast ->
         let dist_vaisseau_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst vaisseau_pos)) ** 2.0 ) +.
                                                    ( (float_of_int ((snd ast.pos) - (snd vaisseau_pos)) ** 2.0) ) ) ) ) in
-        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 10 ) ) then
+        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 8 ) ) then
           {etat with asteroids = ast::(handle_collisions_vaisseau {etat with asteroids = rest_ast} vaisseau_pos).asteroids}
         else
           (print_endline "Perdu !";exit 0);
