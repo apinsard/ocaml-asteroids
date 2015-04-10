@@ -23,24 +23,24 @@ type taille = int;; (* entre 1 et 5 (Arbitraire) *)
 
 
 type missile = {
-  pos: coordonees;
-  orient: orientation
+  mPos: coordonees;
+  mOrient: orientation
 };;
 
 
 type vaisseau = {
-  pos : coordonees;
-  orient: orientation;
-  vitesse: vitesse
+  vPos : coordonees;
+  vOrient: orientation;
+  vVitesse: vitesse
 };;
 
 
 type asteroid = {
-  pos: coordonees;
-  orient: orientation;
-  vitesse: vitesse;
-  taille: taille;
-  couleur: color
+  aPos: coordonees;
+  aOrient: orientation;
+  aVitesse: vitesse;
+  aTaille: taille;
+  aCouleur: color
 };;
 
 
@@ -75,16 +75,16 @@ let rec random_asteroid indice =
     let vit = float_of_int( lance( genInt 2 6 )) in
     let new_orient = (lance( genInt 0 359 )) in
     let new_taille = (lance( genInt 3 5)) in
-    let new_ast = {pos = (pos_x,pos_y); orient = new_orient; taille = new_taille; couleur = ret_color couleur_rand; vitesse = vit } in
+    let new_ast = {aPos = (pos_x,pos_y); aOrient = new_orient; aTaille = new_taille; aCouleur = ret_color couleur_rand; aVitesse = vit } in
     new_ast :: random_asteroid (indice-1);;
 
 let init_etat liste_asteroids =
 {
   vaisseau = {
     (* position initiale du vaisseau : le milieu de l'écran : *)
-    pos = ((width / 2),(height / 2));
-    orient = 90;
-    vitesse = 0.0;
+    vPos = ((width / 2),(height / 2));
+    vOrient = 90;
+    vVitesse = 0.0;
   };
   asteroids = liste_asteroids;
   missiles = [];
@@ -102,8 +102,8 @@ let modulo x m =
 
 (* --- changements d'etat --- *)
 
-let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient + 8 }};;
-let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with orient = etat.vaisseau.orient - 8 }};;
+let rotation_gauche etat = { etat with vaisseau = {etat.vaisseau with vOrient = etat.vaisseau.vOrient + 8 }};;
+let rotation_droite etat = { etat with vaisseau = {etat.vaisseau with vOrient = etat.vaisseau.vOrient - 8 }};;
 
 (* acceleration du vaisseau *)
 let acceleration etat = etat;;
@@ -113,13 +113,13 @@ let acceleration etat = etat;;
 (* tir d'un nouveau projectile *)
 let tir etat =
   (* on retrouve les coordonées de la tête de notre fameux vaisseau *)
-  let ax_tmp = cos( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
-  let ay_tmp = sin( ((float_of_int etat.vaisseau.orient) *. pi) /. 180.0 ) *. 15.0 in
-  let ax = (int_of_float ax_tmp) + fst etat.vaisseau.pos in
-  let ay = (int_of_float ay_tmp) + snd etat.vaisseau.pos in
+  let ax_tmp = cos( ((float_of_int etat.vaisseau.vOrient) *. pi) /. 180.0 ) *. 15.0 in
+  let ay_tmp = sin( ((float_of_int etat.vaisseau.vOrient) *. pi) /. 180.0 ) *. 15.0 in
+  let ax = (int_of_float ax_tmp) + fst etat.vaisseau.vPos in
+  let ay = (int_of_float ay_tmp) + snd etat.vaisseau.vPos in
 
   (* on lance le missile ! *)
-  let new_missile = {pos=(ax, ay); orient = etat.vaisseau.orient} in
+  let new_missile = {mPos=(ax, ay); mOrient = etat.vaisseau.vOrient} in
   { etat with missiles = new_missile::etat.missiles};;
 
 
@@ -128,27 +128,27 @@ let tir etat =
 let rec etat_suivant_asteroids etat =
   match etat.asteroids with
     | ast::rest ->
-        let tmp_x = ( cos( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
-        let tmp_y = ( sin( ((float_of_int ast.orient) *. pi) /. 180.0 )) *. ast.vitesse in
-        let tmp2_x = ( (fst ast.pos ) + (int_of_float(tmp_x)) ) in
-        let tmp2_y = ( (snd ast.pos ) + (int_of_float(tmp_y)) ) in
+        let tmp_x = ( cos( ((float_of_int ast.aOrient) *. pi) /. 180.0 )) *. ast.aVitesse in
+        let tmp_y = ( sin( ((float_of_int ast.aOrient) *. pi) /. 180.0 )) *. ast.aVitesse in
+        let tmp2_x = ( (fst ast.aPos ) + (int_of_float(tmp_x)) ) in
+        let tmp2_y = ( (snd ast.aPos ) + (int_of_float(tmp_y)) ) in
         let new_x = modulo tmp2_x width in
         let new_y = modulo tmp2_y height in
-        let new_ast = {ast with pos = (new_x, new_y)} in
+        let new_ast = {ast with aPos = (new_x, new_y)} in
         {etat with asteroids = new_ast::(etat_suivant_asteroids { etat with asteroids = rest}).asteroids};
     | _ -> etat;;
 
 let rec etat_suivant_missiles etat =
   match etat.missiles with
     | miss::rest ->
-        let tmp_x = ( cos( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
-        let tmp_y = ( sin( ((float_of_int miss.orient) *. pi) /. 180.0 )) *. 10.0 in
-        let new_x = ( (fst miss.pos ) + (int_of_float(tmp_x)) ) in
-        let new_y = ( (snd miss.pos ) + (int_of_float(tmp_y)) ) in
+        let tmp_x = ( cos( ((float_of_int miss.mOrient) *. pi) /. 180.0 )) *. 10.0 in
+        let tmp_y = ( sin( ((float_of_int miss.mOrient) *. pi) /. 180.0 )) *. 10.0 in
+        let new_x = ( (fst miss.mPos ) + (int_of_float(tmp_x)) ) in
+        let new_y = ( (snd miss.mPos ) + (int_of_float(tmp_y)) ) in
         if new_x > width || new_x < 0 || new_y > height || new_y < 0 then
           etat_suivant_missiles { etat with missiles = rest}
         else
-          let new_miss = {miss with pos = (new_x, new_y)} in
+          let new_miss = {miss with mPos = (new_x, new_y)} in
           {etat with missiles = new_miss::(etat_suivant_missiles { etat with missiles = rest}).missiles};
     | _ -> etat;;
 
@@ -164,25 +164,25 @@ let rec eclate_asteroid indice old_taille old_pos old_color =
   else
     let new_angle = lance( genInt 0 359) in
     let new_vitesse = float_of_int( lance( genInt 2 6 )) in
-    let new_ast = {pos = old_pos; orient = new_angle; taille = (old_taille - 1); couleur = old_color; vitesse = new_vitesse } in
+    let new_ast = {aPos = old_pos; aOrient = new_angle; aTaille = (old_taille - 1); aCouleur = old_color; aVitesse = new_vitesse } in
     new_ast::( eclate_asteroid (indice-1) old_taille old_pos old_color);;
 
 
 let rec handle_collisions_missiles_aux etat missile_pos =
   match etat.asteroids with
     | ast::rest_ast ->
-        let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst missile_pos)) ** 2.0 ) +.
-                                                  ( (float_of_int ((snd ast.pos) - (snd missile_pos)) ** 2.0) ) ) ) ) in
-        if dist_miss_ast > ((ast.taille * 8) + 3 ) then
+        let dist_miss_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.aPos) - (fst missile_pos)) ** 2.0 ) +.
+                                                  ( (float_of_int ((snd ast.aPos) - (snd missile_pos)) ** 2.0) ) ) ) ) in
+        if dist_miss_ast > ((ast.aTaille * 8) + 3 ) then
           (* pas de collision entre ce missile et l'asteroid *)
           {etat with asteroids = ast::(handle_collisions_missiles_aux {etat with asteroids = rest_ast} missile_pos).asteroids}
         else
           (* collision : on éclate l'asteroid *)
-          if ast.taille = 1 then
+          if ast.aTaille = 1 then
              {etat with asteroids =  rest_ast}
           else
             let indice = lance(genInt 2 4 ) in
-            let nouveaux_ast = eclate_asteroid indice ast.taille ast.pos ast.couleur in
+            let nouveaux_ast = eclate_asteroid indice ast.aTaille ast.aPos ast.aCouleur in
             {etat with asteroids = nouveaux_ast @ rest_ast};
     | _ -> etat;;
 
@@ -190,15 +190,15 @@ let rec handle_collisions_missiles_aux etat missile_pos =
 let rec handle_collisions_missiles etat indice =
   if indice = (-1) then etat
   else
-    let liste_asteroids = handle_collisions_missiles_aux etat (List.nth etat.missiles indice).pos in
+    let liste_asteroids = handle_collisions_missiles_aux etat (List.nth etat.missiles indice).mPos in
     handle_collisions_missiles { etat with asteroids = liste_asteroids.asteroids } (indice-1);;
 
 let rec handle_collisions_vaisseau etat vaisseau_pos =
   match etat.asteroids with
     | ast::rest_ast ->
-        let dist_vaisseau_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.pos) - (fst vaisseau_pos)) ** 2.0 ) +.
-                                                   ( (float_of_int ((snd ast.pos) - (snd vaisseau_pos)) ** 2.0) ) ) ) ) in
-        if dist_vaisseau_ast > ( (ast.taille * 8) + ( 8 ) ) then
+        let dist_vaisseau_ast = int_of_float (sqrt (  ( (float_of_int ((fst ast.aPos) - (fst vaisseau_pos)) ** 2.0 ) +.
+                                                   ( (float_of_int ((snd ast.aPos) - (snd vaisseau_pos)) ** 2.0) ) ) ) ) in
+        if dist_vaisseau_ast > ( (ast.aTaille * 8) + ( 8 ) ) then
           {etat with asteroids = ast::(handle_collisions_vaisseau {etat with asteroids = rest_ast} vaisseau_pos).asteroids}
         else
           (print_endline "Perdu !";exit 0);
@@ -207,7 +207,7 @@ let rec handle_collisions_vaisseau etat vaisseau_pos =
 
 let handle_collisions etat =
   let indice = (List.length etat.missiles) -1  in
-  let vaisseau_pos = etat.vaisseau.pos in
+  let vaisseau_pos = etat.vaisseau.vPos in
   handle_collisions_vaisseau ( handle_collisions_missiles etat indice ) vaisseau_pos ;;
 
 (* --- affichages graphiques --- *)
@@ -234,21 +234,21 @@ let draw_ship pos orient =
 
 let rec draw_asteroids etat =
   match etat.asteroids with
-    | ast::rest -> set_color ast.couleur;
-                fill_circle (fst ast.pos) (snd ast.pos) (ast.taille*8);
+    | ast::rest -> set_color ast.aCouleur;
+                fill_circle (fst ast.aPos) (snd ast.aPos) (ast.aTaille*8);
                 draw_asteroids {etat with asteroids = rest};
     | _ -> ();;
 
 let rec draw_missiles etat =
   match etat.missiles with
     | miss::rest -> set_color red;
-                    fill_circle (fst miss.pos) (snd miss.pos) 3;
+                    fill_circle (fst miss.mPos) (snd miss.mPos) 3;
                     draw_missiles {etat with missiles = rest};
     | _ -> ();;
 
 
 let affiche_etat etat =
-  draw_ship etat.vaisseau.pos etat.vaisseau.orient;
+  draw_ship etat.vaisseau.vPos etat.vaisseau.vOrient;
   draw_missiles etat;
   draw_asteroids etat;;
 
